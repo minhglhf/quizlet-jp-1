@@ -1,38 +1,33 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { BiAddToQueue } from 'react-icons/bi';
 import { AiOutlineSearch } from 'react-icons/ai';
-const Header = () => {
-    const [hideSearchBox, setHideSearchBox] = useState(false);
-    // const searchBoxPopUp = () => {
-    //     setShowSearchBox(!showSearchBox);
-    // };
-    // const inputRef = useRef(null);
-    const [size, setSize] = useState(window.innerWidth);
-    const checkSize = () => {
-        setSize(window.innerWidth);
-    }
-
-    useEffect(() => {
-        if (size < 768) {
-            setHideSearchBox(true);
-        }
-        else {
-            setHideSearchBox(false);
-        }
-        // console.log(size);
-        window.addEventListener('resize', checkSize);
-        return () => {
-            window.removeEventListener('resize', checkSize);
-        }
-
-    }, [size]);
-
+import LoginPopup from './LoginPopup';
+import RegisterPopup from './RegisterPopup';
+import { Link } from 'react-router-dom';
+import { connect } from 'react-redux';
+const Header = ({user}: any) => {
+    const [show, setShow] = useState(false);
+    const [showRegister, setShowRegister] = useState(false);
+    const closeLoginPopup = () => {
+        setShow(false);
+    };
+    const openLoginPopup = () => {
+        setShow(true);
+    };
+    const closeRegisterPopup = () => {
+        setShowRegister(false);
+    };
+    const openRegisterPopup = () => {
+        setShowRegister(true);
+    };
     return (
         <React.Fragment>
+            <LoginPopup show={show} closeLoginPopup={closeLoginPopup}/>
+            <RegisterPopup showRegister={showRegister} closeRegisterPopup={closeRegisterPopup} />
             <div className="header-container">
                 <div className="left-container">
                     <div className='left'>
-                        <a href="/" >
+                        <Link to="/home" >
                             <div aria-label="Quizlet" className="SiteLogo" role="img" title="Quizlet">
                                 <svg fill="currentColor" viewBox="0 0 244 53" xmlns="http://www.w3.org/2000/svg">
                                     <path
@@ -40,40 +35,49 @@ const Header = () => {
                                     </path>
                                 </svg>
                             </div>
-                        </a>
+                        </Link>
                     </div>
 
-                    {
-                        (!hideSearchBox &&
-                            <div className="right">
-                                <div>
-                                    <AiOutlineSearch className="icon" />
-                                    <div>Tìm kiếm</div>
+                    <div className="right">
+                        <div>
+                            <AiOutlineSearch className="icon" />
+                            <div>Tìm kiếm</div>
+                        </div>
+                        <div className="line">
+                            |
                                 </div>
-                                <div className="line">
-                                    |
-                                </div>
-                                <div>
-                                    <BiAddToQueue className="icon" />
-                                    <div>Tạo</div>
-                                </div>
-                            </div>
-                        )
-                    }
+                        <div>
+                            <BiAddToQueue className="icon" />
+                            <div>Tạo</div>
+                        </div>
+                    </div>
+
+
 
                 </div>
 
                 <div className="rigth-container">
-                    <div className="button signin">
-                        Đăng nhập
-                    </div>
-                    <div className="button signup">
-                        Đăng Ký
-                    </div>
+                    {user?.token ? (
+                        <img src={require('../../assets/avatar.png')} alt="Avatar" className="avatar" />
+                    ): (
+                        <React.Fragment>
+                            <div className="button signin" onClick={openLoginPopup}>
+                                Đăng nhập
+                            </div>
+                            <div className="button signup"  onClick={openRegisterPopup}>
+                              Đăng Ký
+                            </div>
+                        </React.Fragment>
+                    )}
                 </div>
 
             </div>
         </React.Fragment>
     )
 }
-export default Header;
+const mapStateToProps = (state: any) => {
+    return {
+        user: state.user
+    }
+}
+export default connect(mapStateToProps, null)(React.memo(Header));
